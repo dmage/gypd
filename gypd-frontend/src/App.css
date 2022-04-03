@@ -1,0 +1,19 @@
+.card-body {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.needs-attention {
+  background-color: #fcc;
+}
+
+.blocked {
+  background-color: #ccc;
+  color: #999;
+}
+
+.epic {
+  background-color: #eef;
+}
