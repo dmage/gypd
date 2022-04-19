@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/andygrunwald/go-jira v1.15.1
 	github.com/eparis/bugzilla v0.0.0-20220216154903-c21b4ad3cb14
+	github.com/go-chi/chi/v5 v5.0.7
 	github.com/sirupsen/logrus v1.6.0
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	sigs.k8s.io/yaml v1.2.0

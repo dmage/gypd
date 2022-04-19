@@ -122,7 +122,7 @@ func loadEpicLinks(jiraClient *jira.Client, key string) ([]string, error) {
 
 func convertIssue(issue jira.Issue, team []config.TeamMember, jiraClient *jira.Client) (*api.Task, error) {
 	task := &api.Task{
-		ID:      fmt.Sprintf("RH:%s", issue.Key),
+		ID:      fmt.Sprintf("rh:%s", issue.Key),
 		URL:     fmt.Sprintf("%s/browse/%s", jiraEndpoint, issue.Key),
 		Summary: issue.Fields.Summary,
 		Labels: []api.KeyValue{
@@ -131,6 +131,10 @@ func convertIssue(issue jira.Issue, team []config.TeamMember, jiraClient *jira.C
 			{Key: "status", Value: newStatus(issue.Key, issue.Fields.Status.Name).String()},
 			{Key: "assignee", Value: newAssignee(issue.Fields.Assignee, team)},
 		},
+	}
+
+	if epic, err := issue.Fields.Unknowns.String(epicLinkField); err == nil {
+		task.Labels.Add("parent", fmt.Sprintf("rh:%s", epic))
 	}
 
 	if issue.Fields.Type.Name == "Epic" {

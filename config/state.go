@@ -8,18 +8,25 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+type Goal struct {
+	ID    string `json:"id"`
+	Score int    `json:"score"`
+}
+
 type Marker struct {
 	Name  string     `json:"name"`
 	Until *time.Time `json:"until,omitempty"`
 }
 
 type TaskState struct {
-	ID      string   `json:"id"`
-	Markers []Marker `json:"markers"`
+	ID       string   `json:"id"`
+	ParentID string   `json:"parent_id,omitempty"`
+	Markers  []Marker `json:"markers,omitempty"`
 }
 
 type State struct {
-	Tasks []TaskState `json:"tasks"`
+	Goals []Goal      `json:"goals,omitempty"`
+	Tasks []TaskState `json:"tasks,omitempty"`
 }
 
 func LoadState() (*State, error) {

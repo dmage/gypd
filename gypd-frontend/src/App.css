@@ -1,5 +1,8 @@
 .card-body {
   padding: 0.5rem 1rem;
+}
+
+.task {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -16,4 +19,8 @@
 
 .epic {
   background-color: #eef;
+}
+
+.goal {
+  background-color: #c0ffb3;
 }

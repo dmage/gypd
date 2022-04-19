@@ -65,11 +65,11 @@ func newBugzillaClient() (bugzilla.Client, error) {
 
 func convertBug(bug *bugzilla.Bug, team []config.TeamMember, bugzillaClient bugzilla.Client) (*api.Task, error) {
 	task := &api.Task{
-		ID:      fmt.Sprintf("RHBZ:%d", bug.ID),
+		ID:      fmt.Sprintf("rhbz:%d", bug.ID),
 		URL:     fmt.Sprintf("%s/show_bug.cgi?id=%d", bugzillaEndpoint, bug.ID),
 		Summary: bug.Summary,
 		Labels: []api.KeyValue{
-			{Key: "_source", Value: "RHBZ"},
+			{Key: "_source", Value: "rhbz"},
 			{Key: "type", Value: "Bug"},
 			{Key: "priority", Value: newPriority(bug.Priority).String()},
 			{Key: "status", Value: bug.Status},
@@ -105,7 +105,7 @@ func convertBug(bug *bugzilla.Bug, team []config.TeamMember, bugzillaClient bugz
 		if bug.Status == "VERIFIED" || bug.Status == "CLOSED" {
 			continue
 		}
-		task.Labels.Add("blocked-by", fmt.Sprintf("RHBZ:%d", dep))
+		task.Labels.Add("blocked-by", fmt.Sprintf("rhbz:%d", dep))
 	}
 
 	return task, nil
