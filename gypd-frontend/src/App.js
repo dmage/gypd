@@ -55,7 +55,7 @@ function createGoal(id) {
     .then(() => reload());
 }
 
-function setTaskParent(a, parentID) {
+function setTaskParent(a, parentID, reload) {
   console.log("Setting parent of " + a.id + " to " + parentID);
   return fetch('/api/tasks/' + encodeURIComponent(a.id) + '/parent', {
     method: 'POST',
@@ -202,7 +202,7 @@ function FormCreateGoal({ className, onClose }) {
   );
 }
 
-function TaskBody({ task, goals }) {
+function TaskBody({ task, goals, reload }) {
   return (
     <div className="task">
       <div>
@@ -224,7 +224,7 @@ function TaskBody({ task, goals }) {
             <Dropdown.Item onClick={() => addMarker(task, "later", "+168h")}>Mark as later for 7 days</Dropdown.Item>
             <Dropdown.Divider />
             {goals.map(goal => (
-              <Dropdown.Item onClick={() => setTaskParent(task, goal.id)}>Add to the goal {goal.summary}</Dropdown.Item>
+              <Dropdown.Item onClick={() => setTaskParent(task, goal.id, reload)}>Add to the goal {goal.summary}</Dropdown.Item>
             ))}
           </Dropdown.Menu>
         </Dropdown>
@@ -233,15 +233,15 @@ function TaskBody({ task, goals }) {
   );
 }
 
-function Task({ task, className, collapseTasks, goals }) {
+function Task({ task, className, collapseTasks, goals, reload }) {
   return (
     <Card className={(className ? className + " " : "") + cardClassName(task)}>
       <Card.Body>
-        <TaskBody task={task} goals={goals} />
+        <TaskBody task={task} goals={goals} reload={reload}  />
         {collapseTasks ? (
           task.subtasks.length === 0 ? null : <div>{task.subtasks.length} subtasks</div>
         ) : (
-          task.subtasks.map(t => <Task task={t} className="mb-1 ms-4" collapseTasks={collapseTasks} goals={goals} />)
+          task.subtasks.map(t => <Task task={t} className="mb-1 ms-4" collapseTasks={collapseTasks} goals={goals} reload={reload} />)
         )}
       </Card.Body>
     </Card>
@@ -251,11 +251,13 @@ function Task({ task, className, collapseTasks, goals }) {
 function App() {
   const [error, setError] = useState(null);
   const [tasks, setTasks] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [goals, setGoals] = useState(null);
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [collapseTasks, setCollapseTasks] = useState(false);
 
-  useEffect(() => {
+  const loadTasks = () => {
+    setLoading(true);
     fetch(
       '/api/tasks', {
       headers: {
@@ -264,13 +266,19 @@ function App() {
     })
       .then(response => response.json())
       .then(data => {
+        setLoading(false);
         data = stringifyLabels(data);
         setGoals(getGoals(data));
         hideChildren(data);
         setTasks(data);
       })
-      .catch(error => setError(error));
-  }, []);
+      .catch(error => {
+        setLoading(false);
+        setError(error);
+      })
+  }
+
+  useEffect(loadTasks, []);
 
   if (error) {
     return (
@@ -291,47 +299,40 @@ function App() {
     );
   }
 
-  if (tasks === null) {
-    return (
-      <Container>
-        <Row>
-          <Col className="mt-4">
-            Loading...
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-
   return (
     <Container>
-      <Button
-        className="mt-4"
-        variant="outline-primary"
-        onClick={() => setShowAddGoal(!showAddGoal)}
-      >
-        Add Goal
-      </Button>
-      <Button
-        className="mt-4 ms-1"
-        variant="outline-primary"
-        onClick={() => setCollapseTasks(!collapseTasks)}
-      >
-        {collapseTasks ? "Expand Tasks" : "Collapse Tasks"}
-      </Button>
-      {showAddGoal && (
-        <FormCreateGoal
-          className="mt-2"
-          onClose={() => setShowAddGoal(false)}
-        />
+      {loading ? <div className="status-bar">Loading...</div> : []}
+      {tasks === null ? [] : (
+        <>
+          <Button
+            className="mt-4"
+            variant="outline-primary"
+            onClick={() => setShowAddGoal(!showAddGoal)}
+          >
+            Add Goal
+          </Button>
+          <Button
+            className="mt-4 ms-1"
+            variant="outline-primary"
+            onClick={() => setCollapseTasks(!collapseTasks)}
+          >
+            {collapseTasks ? "Expand Tasks" : "Collapse Tasks"}
+          </Button>
+          {showAddGoal && (
+            <FormCreateGoal
+              className="mt-2"
+              onClose={() => setShowAddGoal(false)}
+            />
+          )}
+          {tasks.filter(t => !t.hidden).map(task => (
+            <Row className="mt-3 mb-3" key={task.id}>
+              <Col>
+                <Task task={task} collapseTasks={collapseTasks} goals={goals} reload={loadTasks} />
+              </Col>
+            </Row>
+          ))}
+        </>
       )}
-      {tasks.filter(t => !t.hidden).map(task => (
-        <Row className="mt-3 mb-3" key={task.id}>
-          <Col>
-            <Task task={task} collapseTasks={collapseTasks} goals={goals} />
-          </Col>
-        </Row>
-      ))}
     </Container>
   );
 }

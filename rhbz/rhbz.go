@@ -102,7 +102,7 @@ func convertBug(bug *bugzilla.Bug, team []config.TeamMember, bugzillaClient bugz
 		if err != nil {
 			return nil, fmt.Errorf("failed to get bug %d: %w", dep, err)
 		}
-		if bug.Status == "VERIFIED" || bug.Status == "CLOSED" {
+		if bug.Status == "VERIFIED" || bug.Status == "RELEASE_PENDING" || bug.Status == "CLOSED" {
 			continue
 		}
 		task.Labels.Add("blocked-by", fmt.Sprintf("rhbz:%d", dep))

@@ -24,3 +24,16 @@
 .goal {
   background-color: #c0ffb3;
 }
+
+.status-bar {
+  font-size: 80%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 2px 8px;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-radius: 0 0 5px 0;
+  background: #fee;
+  z-index: 999;
+}

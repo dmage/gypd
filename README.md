@@ -32,3 +32,10 @@ team:
 scoreRules:
 - {key: "flag", value: "blocker", score: 500}
 ```
+
+## Building and running
+
+```console
+$ make build
+$ ./gypd
+```
